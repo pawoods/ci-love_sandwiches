@@ -57,7 +57,7 @@ def update_worksheet(data, worksheet):
     """
     Updates relevant worksheet with list of integers provided
     """
-    print(f"Updating {worksheet} worksheet...\n")
+    print(f"Updating {worksheet} worksheet...")
     worksheet_to_update = SHEET.worksheet(worksheet)
     worksheet_to_update.append_row(data)
     print(f"{worksheet} worksheet updated successfuly!\n")
@@ -71,7 +71,7 @@ def calculate_surplus_data(sales_row):
     - Positive surplus indicates waste
     - Negative surplus indicates extra made where stock sold out
     """
-    print("Calculating surplus data...\n")
+    print("Calculating surplus data...")
     stock = SHEET.worksheet('stock').get_all_values()
     stock_row = stock[-1]
 
@@ -83,6 +83,39 @@ def calculate_surplus_data(sales_row):
     return surplus_data
 
 
+def get_last_5_entries_sales():
+    """
+    Collects columns of data from worksheet,
+    collecting the last 5 entries of each sandwich type
+    and returns value as a list of lists
+    """
+    sales = SHEET.worksheet("sales")
+
+    columns = []
+    for ind in range(1, 7):
+        column = sales.col_values(ind)
+        columns.append(column[-5:])
+
+    return columns
+
+
+def calculate_stock_data(data):
+    """
+    calculates recommended stock data based on averages 
+    of last 5 sales entries, adding 10%
+    """
+    print("Calculating stock data...")
+    new_stock_data = []
+
+    for column in data:
+        int_column = [int(num) for num in column]
+        average = sum(int_column) / len(int_column)
+        stock_num = average * 1.1
+        new_stock_data.append(round(stock_num))
+
+    return new_stock_data
+
+
 def main():
     """
     Run all program functions
@@ -92,6 +125,9 @@ def main():
     update_worksheet(sales_data, "sales")
     new_surplus_data = calculate_surplus_data(sales_data)
     update_worksheet(new_surplus_data, "surplus")
+    sales_columns = get_last_5_entries_sales()
+    stock_data = calculate_stock_data(sales_columns)
+    update_worksheet(stock_data, "stock")
 
 
 print("Welcome to Love Sandwiches data automation.\n")
